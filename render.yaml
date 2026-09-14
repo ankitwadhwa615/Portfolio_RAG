@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: portfolio-rag-api
+    runtime: docker
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: GROQ_API_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b

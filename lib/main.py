@@ -1,5 +1,7 @@
 import logging
 import os
+import time
+import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
@@ -7,7 +9,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -23,20 +28,26 @@ EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 COLLECTION_NAME = "portfolio"
 MAX_QUESTION_LENGTH = 2_000
 MAX_HISTORY_MESSAGES = 6
+MAX_REQUEST_BYTES = 32_000
 
 
 @dataclass(frozen=True)
 class Settings:
     groq_api_key: str
     allowed_origins: list[str]
+    groq_model: str
+    environment: str
 
     @classmethod
     def from_environment(cls) -> "Settings":
         api_key = os.getenv("GROQ_API_KEY", "").strip()
         if not api_key:
             raise RuntimeError("GROQ_API_KEY is not configured")
-        origins = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "").split(",") if origin.strip()]
-        return cls(api_key, origins or ["http://localhost:3000", "http://localhost:5173"])
+        environment = os.getenv("ENVIRONMENT", "development").strip().lower()
+        origins = configured_origins()
+        if environment == "production" and not os.getenv("ALLOWED_ORIGINS", "").strip():
+            raise RuntimeError("ALLOWED_ORIGINS must be configured in production")
+        return cls(api_key, origins, os.getenv("GROQ_MODEL", "openai/gpt-oss-120b").strip(), environment)
 
 
 def configured_origins() -> list[str]:
@@ -83,7 +94,7 @@ class ServiceContainer:
             persist_directory=str(VECTOR_STORE_PATH),
             embedding_function=embeddings,
         )
-        self.llm = ChatGroq(model="openai/gpt-oss-120b", api_key=self.settings.groq_api_key)
+        self.llm = ChatGroq(model=self.settings.groq_model, api_key=self.settings.groq_api_key)
 
 
 @asynccontextmanager
@@ -98,7 +109,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     yield
 
 
-app = FastAPI(title="Portfolio RAG Chatbot", version="1.0.0", lifespan=lifespan)
+app = FastAPI(
+    title="Portfolio RAG Chatbot",
+    description="A retrieval-augmented API for Ankit Wadhwa's portfolio.",
+    version="1.0.0",
+    lifespan=lifespan,
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=configured_origins(),
@@ -106,6 +122,30 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
 )
+
+
+@app.middleware("http")
+async def add_request_context(request: Request, call_next):
+    content_length = request.headers.get("content-length")
+    if content_length and content_length.isdigit() and int(content_length) > MAX_REQUEST_BYTES:
+        return JSONResponse(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, content={"detail": "Request body is too large."})
+
+    request_id = request.headers.get("x-request-id") or str(uuid.uuid4())
+    started_at = time.perf_counter()
+    try:
+        response = await call_next(request)
+    except Exception:
+        LOGGER.exception("Unhandled request error", extra={"request_id": request_id})
+        response = JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"detail": "An unexpected server error occurred."})
+
+    response.headers["X-Request-ID"] = request_id
+    LOGGER.info("%s %s completed with %s in %.3fs", request.method, request.url.path, response.status_code, time.perf_counter() - started_at)
+    return response
+
+
+@app.exception_handler(RequestValidationError)
+async def handle_validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:
+    return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=jsonable_encoder({"detail": exc.errors()}))
 
 SYSTEM_PROMPT = (
     "You are Ankit Wadhwa's portfolio assistant. Answer recruiter and visitor "
@@ -168,4 +208,9 @@ def chat(request: Request, payload: ChatRequest) -> ChatResponse:
 @app.get("/health")
 def health(request: Request) -> dict[str, str]:
     get_services(request)
+    return {"status": "ok"}
+
+
+@app.get("/live")
+def live() -> dict[str, str]:
     return {"status": "ok"}
