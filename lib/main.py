@@ -19,6 +19,20 @@ from langchain_groq import ChatGroq
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from lib.embeddings import FastEmbedEmbeddings
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://portfolio-b981b.web.app",
+        "https://portfolio-b981b.firebaseapp.com",
+        "http://localhost:3000",
+        "http://localhost:5000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 load_dotenv()
 
