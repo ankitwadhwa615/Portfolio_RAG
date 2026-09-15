@@ -44,6 +44,12 @@ COLLECTION_NAME = "portfolio"
 MAX_QUESTION_LENGTH = 2_000
 MAX_HISTORY_MESSAGES = 6
 MAX_REQUEST_BYTES = 32_000
+DEFAULT_ALLOWED_ORIGINS = [
+    "https://portfolio-b981b.web.app",
+    "https://portfolio-b981b.firebaseapp.com",
+    "http://localhost:3000",
+    "http://localhost:5000",
+]
 
 
 @dataclass(frozen=True)
@@ -67,7 +73,7 @@ class Settings:
 
 def configured_origins() -> list[str]:
     origins = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "").split(",") if origin.strip()]
-    return origins or ["http://localhost:3000", "http://localhost:5173"]
+    return origins or DEFAULT_ALLOWED_ORIGINS
 
 
 class ChatMessage(BaseModel):
@@ -134,7 +140,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=configured_origins(),
     allow_credentials=False,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["POST", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
 )
 

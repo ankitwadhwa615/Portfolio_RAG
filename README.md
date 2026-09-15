@@ -24,7 +24,7 @@ Add your key and frontend URL to `.env`:
 
 ```dotenv
 GROQ_API_KEY=your_groq_api_key
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
+ALLOWED_ORIGINS=https://portfolio-b981b.web.app,https://portfolio-b981b.firebaseapp.com,http://localhost:3000,http://localhost:5000
 ```
 
 ## Index the portfolio
@@ -103,7 +103,7 @@ Use `/live` for container liveness checks and `/health` for readiness checks. Th
 | Key | Value |
 | --- | --- |
 | `GROQ_API_KEY` | Your Groq API key. |
-| `ALLOWED_ORIGINS` | Your deployed frontend URL, such as `https://your-portfolio.web.app`. Use commas for multiple origins. |
+| `ALLOWED_ORIGINS` | `https://portfolio-b981b.web.app,https://portfolio-b981b.firebaseapp.com,http://localhost:3000,http://localhost:5000` |
 
 4. Create the service and wait for the Docker build and initial deployment to complete.
 5. Copy the generated Render service URL, verify `https://your-service.onrender.com/health`, and use `https://your-service.onrender.com/docs` for API documentation.
