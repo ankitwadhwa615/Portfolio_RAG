@@ -2,6 +2,8 @@
 
 A FastAPI backend that answers questions about Ankit Wadhwa's portfolio using retrieval-augmented generation. It searches a local Chroma vector store and generates grounded responses with Groq.
 
+The API uses the quantized ONNX version of `BAAI/bge-small-en-v1.5` through FastEmbed at runtime. This preserves local query embeddings and the existing Chroma RAG architecture without loading PyTorch and Sentence Transformers into the web process.
+
 ## Requirements
 
 - Python 3.10 or newer
@@ -30,7 +32,7 @@ ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
 The knowledge base lives in `ankit_wadhwa_portfolio_knowledge_base.md`. Rebuild the vector store after changing it:
 
 ```bash
-venv/bin/python lib/ingest.py
+venv/bin/python -m lib.ingest
 ```
 
 The generated `chroma_db` directory is local-only and is not committed to Git.

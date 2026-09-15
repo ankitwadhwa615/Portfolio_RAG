@@ -15,9 +15,10 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_groq import ChatGroq
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from lib.embeddings import FastEmbedEmbeddings
 
 load_dotenv()
 
@@ -88,7 +89,7 @@ class ServiceContainer:
         self.llm: ChatGroq | None = None
 
     def initialize(self) -> None:
-        embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+        embeddings = FastEmbedEmbeddings(model_name=EMBEDDING_MODEL)
         self.vector_store = Chroma(
             collection_name=COLLECTION_NAME,
             persist_directory=str(VECTOR_STORE_PATH),

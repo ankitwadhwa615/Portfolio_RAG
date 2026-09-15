@@ -4,8 +4,9 @@ from pathlib import Path
 import streamlit as st
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_groq import ChatGroq
+
+from lib.embeddings import FastEmbedEmbeddings
 
 load_dotenv()
 
@@ -19,7 +20,7 @@ def load_services() -> tuple[Chroma, ChatGroq]:
     api_key = os.getenv("GROQ_API_KEY", "").strip()
     if not api_key:
         raise RuntimeError("GROQ_API_KEY is not configured")
-    embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
+    embeddings = FastEmbedEmbeddings(model_name="BAAI/bge-small-en-v1.5")
     vector_store = Chroma(
         collection_name=COLLECTION_NAME,
         persist_directory=str(VECTOR_STORE_PATH),

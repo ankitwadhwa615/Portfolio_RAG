@@ -5,7 +5,8 @@ from pathlib import Path
 
 from langchain_text_splitters import MarkdownHeaderTextSplitter
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+
+from lib.embeddings import FastEmbedEmbeddings
 
 LOGGER = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -35,7 +36,7 @@ def load_documents():
 def rebuild_vector_store() -> int:
     documents = load_documents()
     try:
-        embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+        embeddings = FastEmbedEmbeddings(model_name=EMBEDDING_MODEL)
         with tempfile.TemporaryDirectory(dir=PROJECT_ROOT, prefix="portfolio-index-") as temporary_directory:
             temporary_path = Path(temporary_directory)
             staged_store_path = temporary_path / "vector_store"
