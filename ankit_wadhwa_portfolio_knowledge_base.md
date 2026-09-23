@@ -188,7 +188,7 @@ Seth Jai Parkash Mukand Lal Institute of Engineering and Technology | 2018 – 2
 
 - **Notice Period:** Official notice period is 90 days; able to join within 30 days. Notice period is negotiable, and a notice period buyout is also possible.
 - **Preferred Locations:** Delhi NCR, Bangalore, Hyderabad, and Pune. Currently based in Noida.
-- **Compensation:** Current CTC is ₹7.9 LPA; expected CTC is ₹15–16 LPA, negotiable depending on role, scope, and location.
+- **Compensation:** Ankit prefers to discuss current compensation directly. Expected CTC is ₹15–16 LPA, negotiable depending on role, scope, and location.
 - **Role Focus:** AI Engineer, Generative AI Developer, and Full-Stack Developer roles, particularly those involving LLM orchestration, RAG systems, and agentic workflows.
 
 ## Frequently Asked Questions (Recruiter-Style)
@@ -203,7 +203,7 @@ My applied AI experience is concentrated in RAG and agentic systems rather than 
 Official notice period is 90 days, but I can join within 30 days. It's negotiable, and a notice period buyout is also possible.
 
 **What's your current and expected compensation?**
-Current CTC is ₹7.9 LPA; expected CTC is ₹15–16 LPA, negotiable depending on role, scope, and location.
+Ankit prefers to discuss current compensation directly. Please contact him for those details. Expected CTC is ₹15–16 LPA, negotiable depending on role, scope, and location.
 
 **Are you open to relocation, and what locations do you prefer?**
 Yes — I'm willing to relocate to any of my preferred locations: Delhi NCR, Bangalore, Hyderabad, or Pune. I'm currently based in Noida.
