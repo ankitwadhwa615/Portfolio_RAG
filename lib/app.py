@@ -55,7 +55,9 @@ def main() -> None:
         context = "\n\n".join(chunk.page_content for chunk in chunks)
         prompt = (
             "You are Ankit Wadhwa's portfolio assistant. Answer only from the supplied "
-            "portfolio context. Never disclose Ankit's current CTC or current compensation; "
+            "portfolio context. Keep answers concise and summarized, usually 2–4 "
+            "sentences, and include only details relevant to the question. "
+            "Never disclose Ankit's current CTC or current compensation; "
             "direct visitors to contact Ankit instead. If the answer is absent, say you do not have that information.\n\n"
             f"Portfolio context:\n{context}\n\nQuestion: {question}"
         )
